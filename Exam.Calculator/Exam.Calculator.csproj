@@ -5,6 +5,19 @@
     <TargetFramework>net6.0-windows</TargetFramework>
     <Nullable>enable</Nullable>
     <UseWPF>true</UseWPF>
+    <ApplicationIcon>Dtafalonso-Android-Lollipop-Calculator.ico</ApplicationIcon>
   </PropertyGroup>
+
+  <ItemGroup>
+    <None Remove="history.png" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <Content Include="Dtafalonso-Android-Lollipop-Calculator.ico" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <Resource Include="history.png" />
+  </ItemGroup>
 
 </Project>

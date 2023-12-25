@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.IO;
 using System.Linq;
 using System.Security.AccessControl;
 using System.Text;
@@ -13,6 +14,7 @@ using System.Windows.Media;
 using System.Windows.Media.Imaging;
 using System.Windows.Navigation;
 using System.Windows.Shapes;
+using System.Diagnostics;
 
 namespace Exam.Calculator
 {
@@ -26,11 +28,14 @@ namespace Exam.Calculator
         public string FirstNumber = ""; // Хранит первое число
         public string SecondNumber = ""; // Хранит второе число
         public bool IsSecondNum; // Флаг для проверки готовности ввода второго числа
+        private Guid guid = Guid.NewGuid();
+        private string seed;
+        
         public MainWindow()
         {
             InitializeComponent();
             IsSecondNum = false;
-
+            seed = guid.ToString();
         }
         /// <summary>
         /// Действия для кнопок-цифр (ввод в главное поле)
@@ -43,7 +48,7 @@ namespace Exam.Calculator
             if (IsSecondNum)
             {
                 IsSecondNum=false;
-                if (result.Text != "0") ;
+                if (result.Text != "0");
                 input.Text = result.Text;
                 result.Text = "0";
             }
@@ -130,11 +135,11 @@ namespace Exam.Calculator
                     break;
             }
             IsSecondNum = true;
-            input.Text = String.Format("{0} {1} {2} = {3}", FirstNumber, Action, result.Text, res.ToString());
+            input.Text = String.Format("{0} {1} {2} = {3}", num1, Action, num2, res.ToString());
             result.Text = res.ToString();
             PrevAction = Action;
             Action = "=";
-
+            Write(seed, input.Text);
         }
 
         /// <summary>
@@ -162,6 +167,7 @@ namespace Exam.Calculator
             res = Math.Sqrt(num);
             input.Text = String.Format("√{0} = {1}", num, res);
             result.Text = res.ToString();
+            Write(seed, input.Text);
         }
 
         /// <summary>
@@ -180,6 +186,7 @@ namespace Exam.Calculator
             res = Math.Pow(num, 2);
             input.Text = String.Format("{0} × {0} = {1}", num, res);
             result.Text = res.ToString();
+            Write(seed, input.Text);
         }
 
         /// <summary>
@@ -206,6 +213,7 @@ namespace Exam.Calculator
             res = 1 / num;
             input.Text = String.Format("1 / {0} = {1}", num, res);
             result.Text = res.ToString();
+            Write(seed, input.Text);
         }
 
         /// <summary>
@@ -261,17 +269,20 @@ namespace Exam.Calculator
                 return;
             }
             num2 = Convert.ToDouble(result.Text);
-
+            double temp = 0;
             switch (Action)
             {
                 case "+":
-                    res = num1 + num1*num2/100;
+                    res = num1 + num1 * num2/100;
+                    temp = num1 * num2 / 100;
                     break;
                 case "-":
                     res = num1 - num1 * num2 / 100;
+                    temp = num1 * num2 / 100;
                     break;
                 case "×":
                     res = num1 * num2 / 100;
+                    temp = num2 / 100;
                     break;
                 case "÷":
                     if (num2 / 100 == 0)
@@ -283,12 +294,14 @@ namespace Exam.Calculator
                         return;
                     }
                     res = num1 / (num2 / 100);
+                    temp = num2 / 100;
                     break;
             }
             IsSecondNum = true;
-            input.Text = String.Format("{0} {1} {2} = {3}", FirstNumber, Action, result.Text, res.ToString());
+            input.Text = String.Format("{0} {1} {2} = {3}", FirstNumber, Action, temp, res.ToString());
             result.Text = res.ToString();
             Action = "=";
+            Write(seed, input.Text);
         }
 
         /// <summary>
@@ -306,6 +319,29 @@ namespace Exam.Calculator
                 if (result.Text == "")
                     result.Text = "0";
             }
+        }
+
+        /// <summary>
+        /// Метод для записи истории вычислений в файл
+        /// </summary>
+        /// <param name="seed"></param>
+        /// <param name="target"></param>
+        private void Write(string seed, string target)
+        {
+            if(!Directory.Exists("history"))
+                Directory.CreateDirectory("history");
+            string path = @$"history\{seed}.txt";
+            File.AppendAllText(path, target + "\n");
+
+        }
+
+        private void History_Click(object sender, RoutedEventArgs e)
+        {
+            Process.Start(new ProcessStartInfo
+            {
+                FileName = "notepad.exe",
+                Arguments = @$"history\{seed}.txt"
+            });
         }
     }
     
